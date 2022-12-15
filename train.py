@@ -91,16 +91,17 @@ class MLP(torch.nn.Module):
     self.fc2 = torch.nn.Linear(hidden_size, hidden_size)
     self.layer_norm2 = torch.nn.LayerNorm(hidden_size)
     self.fc3 = torch.nn.Linear(hidden_size, output_size)
+    self.relu = torch.nn.ReLU()
 
   def forward(self, x):
     x = self.fc1(x)
     x = self.layer_norm1(x)
     x = self.dropout(x)
-    x = torch.nn.relu(x)
+    x = self.relu(x)
     x = self.fc2(x)
     x = self.layer_norm2(x)
     x = self.dropout(x)
-    x = torch.nn.relu(x)
+    x = self.relu(x)
     x = self.fc3(x)
     return x
 
@@ -212,10 +213,7 @@ def perform_one_run(
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
 
     # Create a tensorboard writer
-    tbwriter = SummaryWriter(
-        log_dir=log_dir,
-        log_name=run_name,
-    )
+    tbwriter = SummaryWriter(log_dir=f"{log_dir}/{run_name}")
 
     # Best test loss
     best_test_loss = float("inf")

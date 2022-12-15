@@ -13,20 +13,19 @@ conda env create -f environment.txt
 
 *Step 2* Convert protein sequence strings into embeddings using various pre-trained LLMs.
 ```
-python embed.py --gpu 0 --csv_input_file train_clean.csv --csv_output_file train_esm1v_t33_650M_UR90S_1.csv 
---batch_size 4 --model esm1v_t33_650M_UR90S_1
+python embed.py --gpu 0 --csv_input_file train_clean.csv --csv_output_file train_esm1v_t33_650M_UR90S_1.csv --batch_size 4 --model esm1v_t33_650M_UR90S_1 --max_dataset_size 32
 
-python embed.py --gpu 0 --csv_input_file test_clean.csv --csv_output_file test_esm1v_t33_650M_UR90S_1.csv --batch_size 4 --model esm1v_t33_650M_UR90S_1
+python embed.py --gpu 0 --test_mode --csv_input_file test_clean.csv --csv_output_file test_esm1v_t33_650M_UR90S_1.csv --batch_size 4 --model esm1v_t33_650M_UR90S_1 --max_dataset_size 32
 
 python embed.py --gpu 0 --csv_input_file train_clean.csv --csv_output_file train_esm1v_t33_650M_UR90S_5.csv 
 --batch_size 4 --model esm1v_t33_650M_UR90S_5
 
-python embed.py --gpu 0 --csv_input_file test_clean.csv --csv_output_file test_esm1v_t33_650M_UR90S_5.csv --batch_size 4 --model esm1v_t33_650M_UR90S_5
+python embed.py --gpu 0 --test_mode --csv_input_file test_clean.csv --csv_output_file test_esm1v_t33_650M_UR90S_5.csv --batch_size 4 --model esm1v_t33_650M_UR90S_5
 
 python embed.py --gpu 0 --csv_input_file train_clean.csv --csv_output_file train_esm2_t33_650M_UR50D.csv 
 --batch_size 4 --model esm2_t33_650M_UR50D
 
-python embed.py --gpu 0 --csv_input_file test_clean.csv --csv_output_file test_esm2_t33_650M_UR50D.csv --batch_size 4 --model esm2_t33_650M_UR50D
+python embed.py --gpu 0 --test_mode --csv_input_file test_clean.csv --csv_output_file test_esm2_t33_650M_UR50D.csv --batch_size 4 --model esm2_t33_650M_UR50D
 ```
 
 *Step 3* Train an MLP using embeddings/pH as input and tm as target

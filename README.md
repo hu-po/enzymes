@@ -42,7 +42,7 @@ python optimize.py
 
 Use Tensorboard to visualize results, pick the best performing runs.
 ```
-tensorboard --logdir='logs'
+tensorboard --logdir=logs
 ```
 
 Combine predictions from best performing models (mixture of experts)

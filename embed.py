@@ -14,12 +14,14 @@ parser = argparse.ArgumentParser()
 # Define command line arguments
 parser.add_argument("--gpu", type=int, default=-1)
 parser.add_argument("--augment_multiplier", type=int, default=4)
-parser.add_argument("--batch_size", type=int, default=2)
+parser.add_argument("--batch_size", type=int, default=4)
+parser.add_argument("--test_mode", action="store_true")
+parser.add_argument("--max_dataset_size", type=int, default=-1)
 parser.add_argument("--csv_input_file", type=str, default="train_clean.csv")
 parser.add_argument("--csv_output_file", type=str, default="train_clean.csv")
 parser.add_argument("--model", type=str, default="esm1v_t33_650M_UR90S_1")
 parser.add_argument("--max_sequence_length", type=int, default=512)
-parser.add_argument("--embedding_size", type=int, default=1024)
+parser.add_argument("--embedding_size", type=int, default=1280)
 
 
 def encode_sequence_batch(model, alphabet, device, sequence_batch, repr_layers=33):
@@ -135,11 +137,20 @@ if __name__ == "__main__":
 
             writer = csv.writer(csv_output_file)
             # Headers for the encoded sequences
-            writer.writerow(
-                ["seq_id"] + [f"latent_{i}" for i in range(args.embedding_size)])
+            if args.test_mode:
+                writer.writerow(
+                    ["seq_id", "pH"] + [f"latent_{i}" for i in range(args.embedding_size)])
+            else:
+                writer.writerow(
+                    ["seq_id", "pH", "tm"] + [f"latent_{i}" for i in range(args.embedding_size)])
 
             sequence_batch = []
+            extras = []
+            max_dataset_size = args.max_dataset_size if args.max_dataset_size != -1 else float("inf")
             for i, line in enumerate(reader):
+
+                if i >= max_dataset_size:
+                    break
 
                 print(f"Processing line {i} for {args.model}...")
 
@@ -150,7 +161,7 @@ if __name__ == "__main__":
                 data_source = line[3]
 
                 # Test dataset does not have a TM value
-                if len(line) > 4:
+                if not args.test_mode:
                     tm = line[4]
 
                 # Augment the sequence with a random window
@@ -162,24 +173,35 @@ if __name__ == "__main__":
 
                     # Append the sequence to the sequence batch
                     sequence_batch.append((seq_id, clipped_protein_sequence))
+                    if args.test_mode:
+                        extras.append((seq_id, pH))
+                    else:
+                        extras.append((seq_id, pH, tm))
 
                 # If the sequence batch is full, encode the sequences
                 if len(sequence_batch) >= args.batch_size:
 
                     # Use only the first batch_size sequences
                     _sequence_batch = sequence_batch[:args.batch_size]
+                    _extras = extras[:args.batch_size]
 
                     encoded_sequences = encode_sequence_batch(
                         model, alphabet, device, _sequence_batch, repr_layers=repr_layers)
 
                     # Zip the encoded sequences with the sequence IDs
-                    for seq_id, encoded_sequence in zip([seq[0] for seq in _sequence_batch], encoded_sequences):
+                    for i, encode_sequence in enumerate(encoded_sequences):
+
                         # Write the encoded sequences to the output file
-                        writer.writerow([seq_id] + encoded_sequence.tolist())
+                        if args.test_mode:
+                            writer.writerow(list(_extras[i]) + encode_sequence.tolist())
+                        else:
+                            writer.writerow(list(_extras[i]) + encode_sequence.tolist())
 
                     # Clear the used part of the sequence batch
                     _sequence_batch = []
+                    _extras = []
                     sequence_batch = sequence_batch[args.batch_size:]
+                    extras = extras[args.batch_size:]
                     del encoded_sequences
 
                     # Clear out any stale data in the GPU

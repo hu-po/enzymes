@@ -2,17 +2,20 @@
 
 import hyperopt
 from hyperopt import fmin, tpe, hp
-from .train import perform_one_run
+from train import perform_one_run
 
 # Define the objective function
 def objective(params):
-  
+
   # The run name will be used to create a folder for the run
-  run_name = f"run_{params['dataset']}_{params['batch_size']}_{params['lr']}"
+  run_name = f"run_{params['encoder']}_{params['batch_size']}_{params['lr']}"
 
   # Perform the run
   best_loss = perform_one_run(
     run_name = run_name,
+    num_epochs=params["num_epochs"],
+    step_size=params["step_size"],
+    gamma=params["gamma"],
     lr = params["lr"],
     batch_size = params["batch_size"],
     tren_csv_file = f"train_{params['encoder']}.csv",
@@ -26,21 +29,20 @@ if __name__ == "__main__":
 
     # Define the search space
     search_space = {
-        'dataset': hp.choice('dataset', [
+        'encoder': hp.choice('encoder', [
           'esm1v_t33_650M_UR90S_1',
-          'esm1v_t33_650M_UR90S_5',
-          'esm2_t33_650M_UR50D'
+          # 'esm1v_t33_650M_UR90S_5',
+          # 'esm2_t33_650M_UR50D'
         ]),
         'batch_size': hp.choice('batch_size', [32, 64]),
-        'lr': hp.loguniform('lr', -10, -1),
+        'lr': hp.loguniform('lr', -10, -2),
+        'num_epochs': 10,
+        'step_size': 10,
+        'gamma': 0.1,
     }
 
-
-    dataset_space = hp.choice('dataset', ['dataset1', 'dataset2', 'dataset3'])
-
-
     # Run the optimization
-    best = fmin(objective, space=dataset_space, algo=tpe.suggest, max_evals=3)
+    best = fmin(objective, space=search_space, algo=tpe.suggest, max_evals=3)
 
     # Print the best dataset found
     print(best)
