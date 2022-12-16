@@ -3,9 +3,9 @@ import pandas as pd
 
 # read in the csv files using pandas
 best_runs = [    
-    pd.read_csv('pred_run_esm1v_t33_650M_UR90S_5_64_0.0009884843919684074.csv'),
-    pd.read_csv('pred_run_esm1v_t33_650M_UR90S_1_128_0.0014695742681208302.csv'),
-    pd.read_csv('pred_run_esm1v_t33_650M_UR90S_5_128_0.0005322629125219.csv'),
+    pd.read_csv('pred_run_esm2_t33_650M_UR50D_64_0.00625183579110948.csv'),
+    # pd.read_csv('pred_run_esm1v_t33_650M_UR90S_1_128_0.0014695742681208302.csv'),
+    # pd.read_csv('pred_run_esm1v_t33_650M_UR90S_5_128_0.0005322629125219.csv'),
 ]
 
 # First, we will concatenate the three dataframes into a single dataframe

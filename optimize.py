@@ -33,8 +33,8 @@ if __name__ == "__main__":
     # Define the search space
     search_space = {
         'encoder': hp.choice('encoder', [
-          # 'esm1v_t33_650M_UR90S_1',
-          # 'esm1v_t33_650M_UR90S_5',
+          'esm1v_t33_650M_UR90S_1',
+          'esm1v_t33_650M_UR90S_5',
           'esm2_t33_650M_UR50D',
         ]),
         'batch_size': hp.choice('batch_size', [64, 128, 256]),
