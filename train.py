@@ -108,19 +108,25 @@ class MLP(torch.nn.Module):
 # Function for training an MLP
 
 
-def train_mlp(model, train_loader, criterion, optimizer, epoch=None, tbwriter=None):
+def train_mlp(model, train_loader, criterion, optimizer, epoch=None, tbwriter=None, batch_size=None):
 
     # Use tqdm to create a progress bar for the training loop
     with tqdm(total=len(train_loader)) as pbar:
 
+        # Get the size of the train_loader
+        train_size = len(train_loader)
+
+        # Get the number of batches per epoch
+        batches_per_epoch = train_size // batch_size
+
         # Loop over the training data
-        for data in train_loader:
+        for batch_i, batch_data in enumerate(train_loader):
 
             # Update the progress bar
             pbar.update(1)
 
             # Get the input and target
-            input, target = data
+            input, target = batch_data
 
             # Forward pass
             output = model(input)
@@ -135,8 +141,11 @@ def train_mlp(model, train_loader, criterion, optimizer, epoch=None, tbwriter=No
             # Update weights
             optimizer.step()
 
+            # The current batch number
+            batch_num = epoch * batches_per_epoch + batch_i
+
             # Log loss to tensorboard
-            tbwriter.add_scalar('train/loss', loss.item(), epoch)
+            tbwriter.add_scalar('train/loss', loss.item(), batch_num)
 
 # Function for testing an MLP
 def test_mlp(model, test_loader, criterion, epoch=None, tbwriter=None):
@@ -225,7 +234,7 @@ def perform_one_run(
         print(f"Epoch {epoch}")
 
         # Train the model
-        train_mlp(model, train_loader, criterion, optimizer, epoch=epoch, tbwriter=tbwriter)
+        train_mlp(model, train_loader, criterion, optimizer, epoch=epoch, tbwriter=tbwriter, batch_size=batch_size)
 
         # Update the learning rate
         scheduler.step()
