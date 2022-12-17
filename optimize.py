@@ -37,16 +37,16 @@ if __name__ == "__main__":
           'esm1v_t33_650M_UR90S_5',
           'esm2_t33_650M_UR50D',
         ]),
-        'batch_size': hp.choice('batch_size', [64, 128, 256]),
-        'lr': hp.loguniform('lr',  np.log(0.001), np.log(0.01)),
-        'num_epochs': 30,
+        'batch_size': hp.choice('batch_size', [128, 256, 512]),
+        'lr': hp.loguniform('lr',  np.log(0.0001), np.log(0.01)),
+        'num_epochs': 200,
         # Learning rate scheduler
-        'step_size': 10,
+        'step_size': 50,
         'gamma': 0.1,
     }
 
     # Run the optimization
-    best = fmin(objective, space=search_space, algo=tpe.suggest, max_evals=10)
+    best = fmin(objective, space=search_space, algo=tpe.suggest, max_evals=50)
 
     # Print the best dataset found
     print(best)
